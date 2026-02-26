@@ -1,0 +1,34 @@
+[project]
+name = "uaed-muge"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Your Name",email = "you@example.com"}
+]
+readme = "README.md"
+requires-python = ">=3.13.9,<3.15"
+dependencies = [
+    "pillow (>=12.1.1,<13.0.0)",
+    "scipy (>=1.17.0,<2.0.0)",
+    "opencv-python (>=4.13.0.92,<5.0.0.0)",
+    "matplotlib (>=3.10.8,<4.0.0)",
+    "torchvision (>=0.25.0,<0.26.0)",
+    "imageio (>=2.37.2,<3.0.0)",
+    "efficientnet-pytorch (>=0.7.1,<0.8.0)",
+    "ruff (>=0.15.2,<0.16.0)",
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+line-length = 88 
+
+[tool.ruff.lint]
+select = ["E", "F", "I"] # Enables pycodestyle errors/flakes, and isort rules
+ignore = [] 
+
+[tool.ruff.format]
+quote-style = "single"

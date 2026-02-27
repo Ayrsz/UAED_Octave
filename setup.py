@@ -17,5 +17,5 @@ with zipfile.ZipFile(path_to_zip_file, 'r') as zip_ref:
     zip_ref.extractall(path_unzip_file)
 
 #Labels
-os.replace('./data/train_val_all.lst', './datasets/BSDS/train_val_all.lst')
-os.replace('./data/test.lst', './datasets/BSDS/test.lst')
+os.replace('./arq_lsts/train_val_all.lst', './datasets/BSDS/train_val_all.lst')
+os.replace('./arq_lsts/test.lst', './datasets/BSDS/test.lst')

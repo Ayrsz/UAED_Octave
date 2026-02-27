@@ -92,12 +92,12 @@ class UnetPlusPlusDecoder(nn.Module):
         self,
         encoder_channels: tuple,
         decoder_channels: tuple,
-        n_blocks: int =5,
-        use_batchnorm: bool =True,
-        attention_type =None,
+        n_blocks: int = 5,
+        use_batchnorm: bool = True,
+        attention_type=None,
         center=False,
     ):
-        breakpoint()
+        super().__init__()
         if n_blocks != len(decoder_channels):
             raise ValueError(
                 'Model depth is {}, but you provide `decoder_channels` for {} blocks.'.format(
@@ -109,13 +109,12 @@ class UnetPlusPlusDecoder(nn.Module):
         encoder_channels = encoder_channels[1:]
         # reverse channels to start from head of encoder
         encoder_channels = encoder_channels[::-1]
-        print(decoder_channels)
         # computing blocks input and output channels
         head_channels = encoder_channels[0]
         self.in_channels = [head_channels] + list(decoder_channels[:-1])
         self.skip_channels = list(encoder_channels[1:]) + [0]
         self.out_channels = decoder_channels
-
+        print(self.out_channels)
         self.center = nn.Identity()
 
         # combine decoder keyword arguments
@@ -414,30 +413,23 @@ class Mymodel(nn.Module):
 
         features = self.encoder(x)
 
-        # --- Stream Principal ---
         decoder_output = self.decoder(*features)
-        print(f'\n[DEBUG] Decoder Output Shape: {list(decoder_output.shape)}')
-
+        print(decoder_output.shape)
+        breakpoint()
         results = self.segmentation_head(decoder_output)
-        print(f'[DEBUG] Seg Head (Mean) Shape: {list(results.shape)}')
 
         results = crop(results, img_H, img_W, 0, 0)
         if self.args.distribution == 'beta':
             results = nn.Softplus()(results)
 
-        # --- Stream de Incerteza (std) ---
         decoder_output_1 = self.decoder_1(*features)
         results_1 = self.segmentation_head_1(decoder_output_1)
 
         std = crop(results_1, img_H, img_W, 0, 0)
-        print(f'[DEBUG] Seg Head (Std) Shape:  {list(std.shape)}')
 
         if self.args.distribution != 'residual':
             std = nn.Softplus()(std)
 
-        print('-' * 30)  # Separador visual para cada iteração do batch
-
-        breakpoint()  # Remova ou mantenha conforme o cansaço
         return results, std
 
 

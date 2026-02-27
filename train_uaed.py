@@ -117,7 +117,6 @@ if not isdir(TMP_DIR):
     os.makedirs(TMP_DIR)
 
 file_name = os.path.basename(__file__)
-print(MODEL_NAME)
 module_name = MODEL_NAME.split('.')[-1]  # Isso pega "sigma_logit_unetpp"
 src_model = join(THIS_DIR, 'model', module_name + '.py')
 dst_model = join(TMP_DIR, module_name + '.py')

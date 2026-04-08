@@ -83,8 +83,6 @@ class DecoderBlock(nn.Module):
         return x
 
 
-class OctUnet(nn.Module):
-    pass
 
 
 class UnetPlusPlusDecoder(nn.Module):
@@ -114,7 +112,6 @@ class UnetPlusPlusDecoder(nn.Module):
         self.in_channels = [head_channels] + list(decoder_channels[:-1])
         self.skip_channels = list(encoder_channels[1:]) + [0]
         self.out_channels = decoder_channels
-        print(self.out_channels)
         self.center = nn.Identity()
 
         # combine decoder keyword arguments
@@ -414,8 +411,7 @@ class Mymodel(nn.Module):
         features = self.encoder(x)
 
         decoder_output = self.decoder(*features)
-        print(decoder_output.shape)
-        breakpoint()
+    
         results = self.segmentation_head(decoder_output)
 
         results = crop(results, img_H, img_W, 0, 0)

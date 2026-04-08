@@ -21,7 +21,7 @@ matplotlib.use('Agg')
 
 from data.data_loader_one_random_uncert import BSDS_RCFLoader
 
-MODEL_NAME = 'model.sigma_logit_unetpp'
+MODEL_NAME = 'model.sigma_logit_octave_unetpp'
 import importlib
 
 Model = importlib.import_module(MODEL_NAME)
@@ -40,7 +40,7 @@ from utils import Averagvalue, Logger, save_checkpoint
 ssl._create_default_https_context = ssl._create_unverified_context
 from torch.distributions import Independent, Normal
 
-os.environ['CUDA_LAUNCH_BLOCKING'] = '1'
+os.environ['CUDA_LAUNCH_BLOCKING'] = '2'
 parser = argparse.ArgumentParser(description='PyTorch Training')
 parser.add_argument(
     '--batch_size', default=4, type=int, metavar='BT', help='batch size'
@@ -97,6 +97,9 @@ parser.add_argument('--std_weight', default=1, type=float, help='weight for std 
 
 parser.add_argument(
     '--distribution', default='gs', type=str, help='the output distribution'
+)
+parser.add_argument(
+    '--scale_test', default=False, type=bool, help='do the multiscale test'
 )
 
 args = parser.parse_args()
@@ -180,12 +183,12 @@ def main():
     train_loader = DataLoader(
         train_dataset,
         batch_size=args.batch_size,
-        num_workers=8,
+        num_workers=0,
         drop_last=True,
         shuffle=True,
     )
     test_loader = DataLoader(
-        test_dataset, batch_size=1, num_workers=8, drop_last=True, shuffle=False
+        test_dataset, batch_size=1, num_workers=0, drop_last=True, shuffle=False
     )
     with open(join(args.dataset, 'test.lst'), 'r') as f:
         test_list = f.readlines()
@@ -206,9 +209,9 @@ def main():
     )
 
     for epoch in range(args.start_epoch, args.maxepoch):
-        # if epoch==0:
-        #     test(model, test_loader, epoch=epoch, test_list=test_list,
-        #     save_dir = join(TMP_DIR, 'epoch-%d-testing-record-view' % epoch))
+        if epoch==0:
+             test(model, test_loader, epoch=epoch, test_list=test_list,
+             save_dir = join(TMP_DIR, 'epoch-%d-testing-record-view' % epoch))
         train(
             train_loader,
             model,
@@ -223,13 +226,14 @@ def main():
             test_list=test_list,
             save_dir=join(TMP_DIR, 'epoch-%d-testing-record-view' % epoch),
         )
-        multiscale_test(
-            model,
-            test_loader,
-            epoch=epoch,
-            test_list=test_list,
-            save_dir=join(TMP_DIR, 'epoch-%d-testing-record' % epoch),
-        )
+        if do_multiscale_test:
+            multiscale_test(
+                model,
+                test_loader,
+                epoch=epoch,
+                test_list=test_list,
+                save_dir=join(TMP_DIR, 'epoch-%d-testing-record' % epoch),
+            )
         log.flush()  # write log
 
 
@@ -306,6 +310,7 @@ def train(train_loader, model, optimizer, epoch, save_dir):
 
 
 def test(model, test_loader, epoch, test_list, save_dir):
+    print(f"Testing at epoch {epoch}")
     model.eval()
     if not isdir(save_dir):
         os.makedirs(save_dir)

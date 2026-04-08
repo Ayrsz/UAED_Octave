@@ -133,7 +133,7 @@ class OctaveConv(nn.Module):
             return x_h2h, x_h2l
 
 
-class Conv_BN(nn.Module):
+class OctaveConv_BN(nn.Module):
     def __init__(
         self,
         in_channels,
@@ -148,8 +148,8 @@ class Conv_BN(nn.Module):
         bias=True,
         norm_layer=nn.BatchNorm2d,
     ):
-        print('CONV_BN')
-        super(Conv_BN, self).__init__()
+        print('OctaveConv_BN')
+        super(OctaveConv_BN, self).__init__()
         self.conv = OctaveConv(
             in_channels,
             out_channels,
@@ -215,7 +215,7 @@ class OctaveConv_ACT(nn.Module):
         return x_h, x_l
 
 
-class Conv_BN_ACT(nn.Module):
+class OctaveConv_BN_ACT(nn.Module):
     def __init__(
         self,
         in_channels,
@@ -231,8 +231,8 @@ class Conv_BN_ACT(nn.Module):
         norm_layer=nn.BatchNorm2d,
         activation_layer=nn.ReLU,
     ):
-        super(Conv_BN_ACT, self).__init__()
-        print('CONV_BN_ACT')
+        super(OctaveConv_BN_ACT, self).__init__()
+        print('OctaveConv_BN_ACT')
         self.conv = OctaveConv(
             in_channels,
             out_channels,

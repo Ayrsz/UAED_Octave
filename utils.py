@@ -2,7 +2,7 @@ import os
 import sys
 
 import torch
-
+import ptflops
 
 class Logger(object):
     def __init__(self, fpath=None):
@@ -58,3 +58,9 @@ class Averagvalue(object):
 
 def save_checkpoint(state, filename='checkpoint.pth'):
     torch.save(state, filename)
+
+def count_flops(model):
+    input_size = (3, 320, 480)
+    macs, params = ptflops.get_model_complexity_info(model, input_size, print_per_layer_stat=False)
+    print(f"MACS: {macs}\nPARAMS: {params}\n")
+    return macs, params

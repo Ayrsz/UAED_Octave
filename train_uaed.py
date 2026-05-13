@@ -1,4 +1,5 @@
 import torch
+import torch.nn as nn
 
 #!/user/bin/python
 # coding=utf-8
@@ -21,10 +22,8 @@ matplotlib.use('Agg')
 
 from data.data_loader_one_random_uncert import BSDS_RCFLoader
 
-MODEL_NAME = 'model.sigma_logit_octave_unetpp'
 import importlib
 
-Model = importlib.import_module(MODEL_NAME)
 import random
 import ssl
 from os.path import abspath, dirname, isdir, join, split, splitext
@@ -35,12 +34,12 @@ import numpy
 import scipy.io as io
 from torch.utils.data import DataLoader
 
-from utils import Averagvalue, Logger, save_checkpoint
+from utils import Averagvalue, Logger, save_checkpoint, count_flops
 
 ssl._create_default_https_context = ssl._create_unverified_context
 from torch.distributions import Independent, Normal
 
-os.environ['CUDA_LAUNCH_BLOCKING'] = '2'
+os.environ['CUDA_LAUNCH_BLOCKING'] = '0'
 parser = argparse.ArgumentParser(description='PyTorch Training')
 parser.add_argument(
     '--batch_size', default=4, type=int, metavar='BT', help='batch size'
@@ -101,8 +100,15 @@ parser.add_argument(
 parser.add_argument(
     '--scale_test', default=False, type=bool, help='do the multiscale test'
 )
+parser.add_argument(
+    '--model_file', default = 'model.sigma_logit_unetpp', type = str, 
+    help = 'model file to train, use subfolders, such as model.unet...' 
+)
 
 args = parser.parse_args()
+
+MODEL_NAME = args.model_file
+Model = importlib.import_module(MODEL_NAME)
 
 os.environ['CUDA_DEVICE_ORDER'] = 'PCI_BUS_ID'  # see issue #152
 os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
@@ -178,7 +184,7 @@ def step_lr_scheduler(optimizer, epoch, init_lr=args.LR, lr_decay_epoch=3):
 
 def main():
     args.cuda = True
-    train_dataset = BSDS_RCFLoader(root=args.dataset, split='train')
+    train_dataset = BSDS_RCFLoader(root=args.dataset, split='train', supress=True)
     test_dataset = BSDS_RCFLoader(root=args.dataset, split='test')
     train_loader = DataLoader(
         train_dataset,
@@ -199,10 +205,12 @@ def main():
     )
 
     # model
-    model = Model.Mymodel(args).cuda()
+    model = Model.Mymodel(args).to(torch.device('cuda'))
+    model = nn.DataParallel(model)
 
     log = Logger(join(TMP_DIR, '%s-%d-log.txt' % ('Adam', args.LR)))
     sys.stdout = log
+    count_flops(model)
 
     optimizer = torch.optim.Adam(
         model.parameters(), lr=args.LR, weight_decay=args.weight_decay
@@ -226,7 +234,7 @@ def main():
             test_list=test_list,
             save_dir=join(TMP_DIR, 'epoch-%d-testing-record-view' % epoch),
         )
-        if do_multiscale_test:
+        if args.scale_test:
             multiscale_test(
                 model,
                 test_loader,
@@ -273,8 +281,8 @@ def train(train_loader, model, optimizer, epoch, save_dir):
             optimizer.step()
             optimizer.zero_grad()
             counter = 0
-        losses.update(loss, image.size(0))
-        epoch_loss.append(loss)
+        losses.update(loss.detach(), image.size(0))
+        epoch_loss.append(loss.detach())
         batch_time.update(time.time() - end)
         end = time.time()
         # display and logging

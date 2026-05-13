@@ -14,10 +14,12 @@ class BSDS_RCFLoader(data.Dataset):
     Dataloader BSDS500
     """
 
-    def __init__(self, root='data/HED-BSDS_PASCAL', split='train', transform=False):
+    def __init__(self, root='data/HED-BSDS_PASCAL', split='train', transform=False, supress = False):
         self.root = root
         self.split = split
         self.transform = transform
+        self.supress = supress
+
         if self.split == 'train':
             self.filelist = join(self.root, 'train_val_all.lst')
 
@@ -45,7 +47,14 @@ class BSDS_RCFLoader(data.Dataset):
                 label_list.append(label.unsqueeze(0))
             labels = torch.cat(label_list, 0)
             lb_mean = labels.mean(dim=0).unsqueeze(0)
+            
             lb_std = labels.std(dim=0).unsqueeze(0)
+            
+            if self.supress:
+                unique_values = lb_std.unique(sorted=True)
+                lb_std[lb_std == unique_values[-1]] = 0
+                
+                
             lb_index = random.randint(2, len(img_lb_file)) - 1
             lb_file = img_lb_file[lb_index]
 

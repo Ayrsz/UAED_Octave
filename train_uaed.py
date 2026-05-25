@@ -100,6 +100,11 @@ parser.add_argument(
 parser.add_argument(
     '--scale_test', default=False, type=bool, help='do the multiscale test'
 )
+
+parser.add_argument(
+    '--attention', default = None, type = str, help = 'Attention type, only implemented ""excitation""'
+)
+
 parser.add_argument(
     '--model_file', default = 'model.sigma_logit_unetpp', type = str, 
     help = 'model file to train, use subfolders, such as model.unet...' 
@@ -215,7 +220,7 @@ def main():
     optimizer = torch.optim.Adam(
         model.parameters(), lr=args.LR, weight_decay=args.weight_decay
     )
-
+    
     for epoch in range(args.start_epoch, args.maxepoch):
         if epoch==0:
              test(model, test_loader, epoch=epoch, test_list=test_list,

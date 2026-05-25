@@ -5,14 +5,16 @@ import torch.utils.model_zoo as model_zoo
 from efficientnet_pytorch import EfficientNet
 from efficientnet_pytorch.utils import get_model_params, url_map, url_map_advprop
 from model.octave_convolution import OctaveConv_BN_ACT
+from model.excitation_block import SqueezeExitationBlock
 
 class Attention(nn.Module):
     def __init__(self, name, **params):
         super().__init__()
-
-        if name is None:
+        if name == 'excitation':
+            self.attention = SqueezeExitationBlock(**params)
+        else:
             self.attention = nn.Identity(**params)
-
+        
     def forward(self, x):
         return self.attention(x)
 
@@ -368,7 +370,10 @@ class Mymodel(nn.Module):
 
         self.decoder_use_batchnorm = (True,)
         self.decoder_channels = (256, 128, 64, 32, 16)
-        self.decoder_attention_type = None
+        try: 
+            self.decoder_attention_type = args.attention
+        except:
+            self.decoder_attention_type = None
 
         self.encoder = get_encoder(
             encoder_name,

@@ -421,16 +421,13 @@ class Mymodel(nn.Module):
         features = self.encoder(x)
 
         decoder_output = self.decoder(*features)
-    
         results = self.segmentation_head(decoder_output)
-
         results = crop(results, img_H, img_W, 0, 0)
         if self.args.distribution == 'beta':
             results = nn.Softplus()(results)
 
         decoder_output_1 = self.decoder_1(*features)
         results_1 = self.segmentation_head_1(decoder_output_1)
-
         std = crop(results_1, img_H, img_W, 0, 0)
 
         if self.args.distribution != 'residual':

@@ -60,34 +60,6 @@ class EdgePredictor:
         save_image(tensor_list, save_path)
         print(f"Salvo: {save_path}")
 
-    @torch.no_grad()
-    def run_standard(self, image_paths, test_fps=False):
-        self.net.eval()
-        fps_measured = False
-
-        for path in image_paths:
-            print(f">> Processando: {path}")
-            tensor = preprocess_image(path, method='standard').to(self.device)
-
-            if test_fps and not fps_measured:
-                fps = calculate_fps(self.net, tensor)
-                print(f"--- FPS CALCULADO: {fps:.2f} ---")
-                fps_measured = True
-
-            pred_list = self.net(tensor)
-            processed_tensors = []
-
-            for i, pred in enumerate(pred_list):
-                # Normalização e Anotação
-                out = pred[0, 0].cpu().numpy()
-                out = (out - out.min()) / (out.max() - out.min() + 1e-5)
-                
-                label = f'side_{i+1}' if i < len(pred_list)-1 else 'fuse'
-                cv.putText(out, label, (10, 50), **FONT_SETTINGS)
-                
-                processed_tensors.append(torch.from_numpy(out).unsqueeze(0))
-
-            self._save_result(torch.stack(processed_tensors), path)
 
     @torch.no_grad()
     def run_uncertainty(self, image_paths):

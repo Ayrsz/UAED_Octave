@@ -82,6 +82,7 @@ def main():
     parser.add_argument('--input_folder', type=str, default='./ValidateImages/')
     parser.add_argument('--test_fps', action='store_true')
     parser.add_argument('--distribution', default='gs', type=str, help='the output distribution')
+    parser.add_argument('--attention_type', type = str, default = None)
     
     args = parser.parse_args()
 

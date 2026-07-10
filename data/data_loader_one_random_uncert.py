@@ -50,7 +50,7 @@ class BSDS_RCFLoader(data.Dataset):
             
             lb_std = labels.std(dim=0).unsqueeze(0)
             
-            if self.supress:
+            if self.:
                 unique_values = lb_std.unique(sorted=True)
                 lb_std[lb_std == unique_values[-1]] = 0
                 

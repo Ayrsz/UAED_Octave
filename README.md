@@ -1,8 +1,6 @@
-# MuGE
-We add code for MuGE.  
-MuGE: Multiple Granularity Edge Detection [pdf](https://www3.cs.stonybrook.edu/~hling/publication-selected.htm)  
-Caixia Zhou, Yaping Huang, Mengyang Pu, Qingji Guan, Ruoxi Deng and Haibin Ling  
-CVPR2024
+# Octave UAED implementation
+To acess the original implementation, acess https://github.com/ZhouCX117/UAED_MuGE
+
 
 # UAED
 The Treasure Beneath Multiple Annotations: An Uncertainty-aware Edge Detector  
@@ -10,16 +8,12 @@ Caixia Zhou, Yaping Huang, Mengyang Pu, Qingji Guan, Li Huang and Haibin Ling
 CVPR 2023
 
 # Preparing Data
-The processed dataset is from LPCB, you can download the used matlab code and processed data from the [Baidu disk](https://pan.baidu.com/s/1F2nAYKsmNxTCI6dmAOGQqg), the code is 3tii.
+The processed dataset is from LPCB, you can download the used matlab code and processed data from the [Baidu disk](https://pan.baidu.com/s/1F2nAYKsmNxTCI6dmAOGQqg), the code is 3tii. Or downloaded in the drive https://drive.google.com/drive/folders/1VcO4dnEVRsSBdTxBN0itiLKNQ_kUbxsv?usp=drive_link
 The complete processed BSDS training dataset can be downloaded from the [Google disk](https://drive.google.com/file/d/1iB2aUKTjDK0URbvUXbXBKBYAROftRKwX/view?usp=sharing).
-Training data for the Multicue dataset can be downloaded from the [Quark Disk](https://pan.quark.cn/s/d87cad9abe2e).
 
 # Checkpoint 
 BSDS with single scale for UAED: [Quark disk](https://pan.quark.cn/s/9e65e82b3d40) or  [Google disk](https://drive.google.com/file/d/1nv2_TZRyiQh5oU9TnGMzu313OrspD2l5/view?usp=sharing)  
-VOC pretrain model for UAED: [Quark disk](https://pan.quark.cn/s/7bfb4fd56242) or [Google disk](https://drive.google.com/file/d/1cfmErOAUgbvMH_MMFsxhc7f_qxxoy01x/view?usp=sharing)  
-Pretrain granularity network for MuGE:  [Google disk](https://drive.google.com/file/d/1DBLZvPwI-Z6N70pG8y3-TKWmlUdRjulR/view?usp=drive_link) 
-BSDS with scale for MuGE: [Google disk](https://drive.google.com/file/d/15NucsEeHAFwo5O2s11pMR1BikoUtiuUX/view?usp=sharing)  
-
+  
 # Results
 UAED Results for BSDS under a single-scale setting can be found [here](https://pan.quark.cn/s/840cd0690997).
 # Start
@@ -27,18 +21,51 @@ UAED:
 ```
 python train_uaed.py
 ```
-MuGE:
-first download the [checkpoint](https://drive.google.com/file/d/1DBLZvPwI-Z6N70pG8y3-TKWmlUdRjulR/view?usp=drive_link), then revise line 273 as the checkpoint path.  
-```
-python train_muge.py
-```
-# Best ODS and OIS evaluation for MuGE
-1. Run python test_muge.py to obtain the results under different granularities. 
-2. Test ODS and OIS for each granularity as normal. 
-3. Run eval_muge_best/best_ods_ois.py to obtain the ODS and OIS value. 
-4. Run eval_muge_best/select_best_ois_png.py to obtain the selected pictures for best OIS. 
-5. Select the threshold for best ODS from the best_ods_0.1/nms-eval/eval_bdry_thr.txt, revise line 8 in eval_muge_best/select_best_ods_png.py and run eval_muge_best/select_best_ods_png.py to select the best pictures for best ODS. 
-# Acknowledgement & Citation
+* `--batch_size` : Specifies the number of images processed in each training batch. Default value: 4.
+* `--LR / --learning_rate` : Defines the initial learning rate used by the Adam optimizer. 
+Controls the magnitude of weight updates during training.
+Default value: 0.0001.
+* `--weight_decay / --wd` : Specifies the L2 regularization factor applied to the model weights. 
+Helps reduce overfitting by penalizing large weights.
+Default value: 0.0005.
+* `--stepsize` : Defines the number of epochs between learning rate updates. 
+Every stepsize epochs, the learning rate is multiplied by 0.1.
+Default value: 3.
+* `--maxepoch` : Specifies the total number of training epochs. 
+Default value: 20.
+`*--start_epoch` : Defines the starting epoch of the training process.
+Useful when resuming training from a saved checkpoint.
+Default value: 0.
+* `--print_freq (-p)` : Determines how often training statistics (e.g., loss and execution time) are printed during training.
+Default value: 1000 iterations.
+* `--gpu` : Specifies the CUDA GPU ID used for training.
+Example: "0" selects the first available GPU.
+Default value: "0".
+* `--tmp` : Specifies the directory where logs, checkpoints, and intermediate results are stored.
+Default value: ./temp/train.
+* `--dataset` : Defines the root directory containing the training and testing datasets.
+Default value: ./datasets/BSDS/.
+* `--itersize` : Specifies the number of iterations over which gradients are accumulated before updating the model parameters.
+Allows the simulation of larger batch sizes when GPU memory is limited.
+Default value: 1.
+* `--std_weight` : Defines the weight assigned to the standard deviation loss term.
+Controls the contribution of uncertainty estimation to the overall loss function.
+Default value: 1.
+* `--distribution` : Specifies the output probability distribution assumed by the model.
+The default implementation uses "gs".
+Default value: "gs".
+* `--scale_test` : Enables or disables multi-scale inference during testing.
+When enabled, predictions from multiple image scales are averaged to improve performance.
+Default value: False.
+* `--attention` : Specifies the attention mechanism used by the model.
+According to the implementation, the supported option is "excitation".
+Default value: None.
+* `--model_file` : Specifies the Python module containing the neural network architecture to be trained.
+Allows different model implementations to be selected without modifying the training script.
+Default value: model.sigma_logit_unetpp.
+
+
+# Original implementation and paper
 The dataset is highly based on the LPCB, and the code is highly based on [RCF_Pytorch_Updated](https://github.com/balajiselvaraj1601/RCF_Pytorch_Updated) and [
 segmentation_models.pytorch](https://github.com/qubvel/segmentation_models.pytorch). Many thanks for their great work.  
 Please consider citing this project in your publications if it helps your research.

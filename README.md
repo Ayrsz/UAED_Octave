@@ -64,6 +64,18 @@ Default value: None.
 Allows different model implementations to be selected without modifying the training script.
 Default value: model.sigma_logit_unetpp.
 
+# Run inferece
+Run the inference script using:
+
+```bash
+python predict.py \
+    --checkpoint <path_to_checkpoint> \
+    --model_file <model_module> \
+    --input_folder <input_images_folder> \
+    --attention_type <type_of_attention> (None or Excitation)
+```
+
+The predictions should appear in a "preds" folder em in the root of the project.
 
 # Original implementation and paper
 The dataset is highly based on the LPCB, and the code is highly based on [RCF_Pytorch_Updated](https://github.com/balajiselvaraj1601/RCF_Pytorch_Updated) and [
